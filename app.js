@@ -6,15 +6,14 @@ var logger = require('morgan');
 
 var userRouter = require('./routes/user');
 var adminRouter = require('./routes/admin');
+var hbs=require('express-handlebars')
+
 
 var app = express();
-var hbs = require('express-handlebars');
-
-const fileUpload = require('express-fileupload');
-
-var bodyParser = require('body-parser');
-
+var fileUpload=require('express-fileupload')
 var db=require('./config/connection');
+const { response } = require('express');
+//var session=require('express-session')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,29 +23,19 @@ app.engine('hbs',hbs({extname:'hbs',defaultLayout:'layout',layoutsDir:__dirname+
 
 
 app.use(logger('dev'));
-app.use(express.json({extended: false}));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(fileUpload())
+//app.use(session({secret:'key',cookie:{maxage:60000}}))
 
 db.connect((err)=>{
-  if(err){
-    console.log('Connection Error'+err);
-  }
-    else
-    {
-      console.log('Connection Succesfull');
-    }
-  
-
-});
-
+  if(err) console.log('its error'+err);
+  else console.log('database');
+})
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
-
-app.use(fileUpload());
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -64,7 +53,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-
 module.exports = app;
-
-
